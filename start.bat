@@ -1,8 +1,19 @@
 @echo off
+setlocal
 echo ========================================
-echo    ET Explorer - Starting...
+echo    ET Explorer - Launching Dev Orbit
 echo ========================================
-cd /d "%~dp0"
+echo 1. Waking up the server...
+start /b cmd /c "npm run dev"
+
+echo 2. Giving the engines 5 seconds to warm up...
+timeout /t 5 /nobreak > nul
+
+echo 3. Launching your cockpit...
 start http://localhost:3000
-npm run dev
+
+echo ========================================
+echo SERVER RUNNING. DO NOT CLOSE THIS WINDOW.
+echo ========================================
+echo If browser didn't open, visit: http://localhost:3000
 pause

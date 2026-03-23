@@ -278,7 +278,7 @@ export default function Dashboard() {
         
         {/* Left Stats Rail */}
         <div className="col-span-12 lg:col-span-3 space-y-8">
-           <div className="bg-[#990000] text-white rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100">
+           <div className="bg-[#990000] text-white rounded-[2.5rem] p-10 shadow-2xl shadow-red-100">
               <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-6 flex items-center gap-2">
                 <Flame className="w-4 h-4" /> FIRE TARGET
               </p>
@@ -416,8 +416,8 @@ export default function Dashboard() {
                            <BarChart3 className="w-4 h-4 text-[#990000]" /> CORNERSTONE ANALYSIS
                          </h3>
                          <div className="space-y-6">
-                            <div className="p-6 bg-indigo-50 rounded-2xl border border-indigo-100">
-                               <p className="text-xs font-bold text-indigo-700 leading-relaxed uppercase tracking-widest mb-2">Strategy Alignment</p>
+                            <div className="p-6 bg-neutral-50 rounded-2xl border border-neutral-100">
+                               <p className="text-xs font-bold text-neutral-500 leading-relaxed uppercase tracking-widest mb-2">Strategy Alignment</p>
                                <div className="flex items-center gap-4">
                                   <div className="w-12 h-12 bg-[#990000] rounded-xl flex items-center justify-center text-white font-black text-xl">{profile.fire_preferences?.swr}%</div>
                                   <p className="text-xs font-semibold text-[#990000]">Your profile is tuned to a <b>{profile.fire_preferences?.swr}%</b> withdrawal rate, which balances stability and growth for a {105 - profile.retirement_age} year retirement duration.</p>
@@ -497,7 +497,7 @@ export default function Dashboard() {
                    </div>
                 </div>
 
-                <div className="bg-[#990000] text-white rounded-[4rem] p-12 shadow-2xl shadow-indigo-100 flex flex-col md:flex-row items-center justify-between gap-10">
+                <div className="bg-[#990000] text-white rounded-[4rem] p-12 shadow-2xl shadow-red-100 flex flex-col md:flex-row items-center justify-between gap-10">
                    <div className="space-y-2 text-center md:text-left">
                       <h3 className="text-2xl font-black tracking-tighter">Optimize for Early Orbit?</h3>
                       <p className="text-white/60 text-sm font-medium">Increasing your monthly deployment by 10k brings retirement forward by 4.2 years.</p>

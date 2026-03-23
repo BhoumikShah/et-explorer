@@ -271,7 +271,7 @@ function renderStepInput(step: number, state: any, setState: any) {
         <div className="space-y-8">
            <div className="flex justify-between items-end">
               <span className="text-[10px] font-black uppercase text-neutral-400 tracking-widest">Monthly Expenses</span>
-              <span className="text-4xl font-black text-indigo-600 tracking-tighter">{formatCurrency(state.monthly)}</span>
+              <span className="text-4xl font-black text-[#990000] tracking-tighter">{formatCurrency(state.monthly)}</span>
            </div>
            <input type="range" min={10000} max={500000} step={5000} value={state.monthly} onChange={e => setState({...state, monthly: parseInt(e.target.value)})} className="w-full accent-[#990000] h-1.5 bg-neutral-200 rounded-full appearance-none cursor-pointer" />
            <div className="flex gap-4">
@@ -279,7 +279,7 @@ function renderStepInput(step: number, state: any, setState: any) {
                 <button 
                   key={v} 
                   onClick={() => setState({...state, expenseMultiplier: v})}
-                  className={`flex-1 p-5 rounded-2xl border transition-all text-xs font-bold ${state.expenseMultiplier === v ? 'bg-[#990000] text-white border-[#990000] shadow-xl' : 'bg-white text-neutral-400 border-neutral-100 hover:border-indigo-100 underline decoration-indigo-200'}`}
+                  className={`flex-1 p-5 rounded-2xl border transition-all text-xs font-bold ${state.expenseMultiplier === v ? 'bg-[#990000] text-white border-[#990000] shadow-xl' : 'bg-white text-neutral-400 border-neutral-100 hover:border-[#990000]/20'}`}
                 >
                   {v === 0.85 ? 'Less (Lean)' : v === 1.0 ? 'Default' : 'More (Fat)'}
                 </button>
@@ -322,7 +322,7 @@ function renderStepInput(step: number, state: any, setState: any) {
         <div className="space-y-10">
            <div className="flex justify-between items-end">
               <span className="text-[10px] font-black uppercase text-neutral-400 tracking-widest">Current Net Worth</span>
-              <span className="text-4xl font-black text-indigo-600 tracking-tighter">{formatCurrency(state.currentCorpus)}</span>
+              <span className="text-4xl font-black text-[#990000] tracking-tighter">{formatCurrency(state.currentCorpus)}</span>
            </div>
            <input type="range" min={0} max={50000000} step={100000} value={state.currentCorpus} onChange={e => setState({...state, currentCorpus: parseInt(e.target.value)})} className="w-full accent-[#990000] h-1.5 bg-neutral-200 rounded-full appearance-none cursor-pointer" />
            <div className="p-6 border border-neutral-100 rounded-2xl space-y-2">
@@ -427,7 +427,7 @@ function renderStepInput(step: number, state: any, setState: any) {
            <div className="flex justify-between items-end border-b border-neutral-100 pb-4">
               <div className="flex flex-col">
                  <span className="text-[10px] font-black uppercase text-neutral-400 tracking-widest mb-1">Risk Protection Strategy</span>
-                 <span className="text-2xl font-black text-indigo-600 tracking-tighter">Automated Glide-Path</span>
+                 <span className="text-2xl font-black text-[#990000] tracking-tighter">Automated Glide-Path</span>
               </div>
            </div>
            <p className="text-sm font-medium text-neutral-500 leading-relaxed">
@@ -436,7 +436,7 @@ function renderStepInput(step: number, state: any, setState: any) {
            <div className="h-24 w-full bg-neutral-50 rounded-3xl relative overflow-hidden flex items-center px-10">
               <div className="absolute left-0 top-0 h-full bg-[#990000]/10 transition-all" style={{ width: '100%' }} />
               <div className="flex-1 flex justify-between relative z-10">
-                 <div className="text-center"><p className="text-[10px] font-bold text-neutral-400">NOW</p><p className="font-black text-indigo-600">80% Risk</p></div>
+                 <div className="text-center"><p className="text-[10px] font-bold text-neutral-400">NOW</p><p className="font-black text-[#990000]">80% Risk</p></div>
                  <div className="flex-1 border-t border-dashed border-neutral-300 mx-10 self-center" />
                  <div className="text-center"><p className="text-[10px] font-bold text-neutral-400">RETIRE</p><p className="font-black text-emerald-600">30% Risk</p></div>
               </div>
@@ -452,7 +452,7 @@ function renderStepInput(step: number, state: any, setState: any) {
                 <button 
                   key={v}
                   onClick={() => setState({...state, wr: v})}
-                  className={`p-8 rounded-[2.5rem] border text-left transition-all ${state.wr === v ? 'bg-[#990000] text-white border-[#990000] shadow-2xl scale-[1.02]' : 'bg-white text-neutral-400 border-neutral-100 hover:border-indigo-100'}`}
+                  className={`p-8 rounded-[2.5rem] border text-left transition-all ${state.wr === v ? 'bg-[#990000] text-white border-[#990000] shadow-2xl scale-[1.02]' : 'bg-white text-neutral-400 border-neutral-100 hover:border-[#990000]/20'}`}
                 >
                    <p className="text-2xl font-black mb-1">{v}%</p>
                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">
