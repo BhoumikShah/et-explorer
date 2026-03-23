@@ -45,7 +45,7 @@ console.log(`✅ Glide Path (Equity % at age 55): ${gp.find(p => p.age === 55)?.
 const sampleProfile = { age: 30, retirement_age: 40 }; 
 const sampleInvestments = [{ current_value: 500000 }];
 const sampleGoals = [{ name: "Early FIRE", target_year: 2030, target_amount: 5000000 }];
-const sampleSIPs = { "Retirement": 20000 };
+const sampleSIPs = 20000;
 const projection = calculateNetWorthProjection(sampleProfile, sampleInvestments, sampleGoals, sampleSIPs);
 console.log(`✅ Projection (Age 40 Net Worth): ₹${projection[projection.length - 1].netWorth.toLocaleString()}`);
 
