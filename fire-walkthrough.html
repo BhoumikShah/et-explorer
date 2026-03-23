@@ -1,0 +1,542 @@
+<style>
+:root {
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f8fafc;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94a3b8;
+  --color-border-tertiary: #f1f5f9;
+  --color-border-secondary: #e2e8f0;
+  --color-accent: #185fa5;
+  --color-accent-text: #e6f1fb;
+  --color-background-warning: #fff9eb;
+  --color-text-warning: #92400e;
+  --color-info-bg: #eff6ff;
+  --color-info-text: #1e40af;
+  --color-success-bg: #f0fdf4;
+  --color-success-text: #166534;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background-primary: #0f172a;
+    --color-background-secondary: #1e293b;
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #94a3b8;
+    --color-text-tertiary: #64748b;
+    --color-border-tertiary: #1e293b;
+    --color-border-secondary: #334155;
+    --color-background-warning: #2d2010;
+    --color-text-warning: #fcd34d;
+    --color-info-bg: #1e293b;
+    --color-info-text: #93c5fd;
+    --color-success-bg: #064e3b;
+    --color-success-text: #6ee7b7;
+  }
+}
+
+* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+body { background: var(--color-background-secondary); color: var(--color-text-primary); font-size: 14px; line-height: 1.5; font-weight: 400; }
+
+.walkthrough-layout { display: flex; min-height: 100vh; max-width: 1200px; margin: 0 auto; gap: 2rem; padding: 2rem; }
+.main-content { flex: 1; display: flex; flex-direction: column; gap: 2rem; }
+.sidebar { width: 320px; flex-shrink: 0; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; padding: 1.5rem; height: fit-content; position: sticky; top: 2rem; }
+
+.progress-container { width: 100%; height: 4px; background: var(--color-border-secondary); border-radius: 2px; margin-bottom: 2rem; overflow: hidden; }
+.progress-bar { height: 100%; background: #1d9e75; transition: width 0.3s ease; }
+
+.step-box { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; padding: 2rem; }
+.explanation { font-size: 14px; line-height: 1.7; color: var(--color-text-secondary); padding-left: 1.25rem; border-left: 3px solid var(--color-accent); margin-bottom: 2rem; }
+.input-section { display: flex; flex-direction: column; gap: 1.5rem; }
+
+h2 { font-size: 20px; font-weight: 500; margin-bottom: 1rem; color: var(--color-text-primary); }
+.input-label { font-size: 12px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display: block; }
+.display-value { font-size: 24px; font-weight: 500; color: var(--color-accent); margin-left: auto; }
+
+input[type="range"] { width: 100%; height: 4px; background: var(--color-border-secondary); border-radius: 2px; appearance: none; outline: none; margin: 1rem 0; }
+input[type="range"]::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: var(--color-accent); border-radius: 50%; cursor: pointer; border: 2px solid var(--color-background-primary); }
+
+.pill-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.pill { padding: 0.6rem 1rem; border-radius: 8px; border: 0.5px solid var(--color-border-secondary); font-size: 13px; font-weight: 500; background: transparent; color: var(--color-text-secondary); cursor: pointer; transition: all 0.2s; text-align: left; flex: 1; min-width: 140px; }
+.pill.active { background: var(--color-accent); color: var(--color-accent-text); border-color: var(--color-accent); }
+
+.nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; }
+.back-link { color: var(--color-text-tertiary); text-decoration: none; font-size: 13px; font-weight: 500; cursor: pointer; }
+.back-link:hover { color: var(--color-text-secondary); }
+.continue-btn { background: var(--color-accent); color: var(--color-accent-text); border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.continue-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.summary-title { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 1.5rem; }
+.summary-item { display: flex; justify-content: space-between; margin-bottom: 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 0.75rem; }
+.summary-label { font-size: 12px; color: var(--color-text-secondary); }
+.summary-value { font-size: 12px; font-weight: 500; color: var(--color-text-primary); text-align: right; }
+
+.banner { padding: 1rem; border-radius: 8px; font-size: 13px; margin-top: 1rem; line-height: 1.5; }
+.banner-warning { background: var(--color-background-warning); color: var(--color-text-warning); }
+.banner-info { background: var(--color-info-bg); color: var(--color-info-text); }
+.banner-success { background: var(--color-success-bg); color: var(--color-success-text); }
+
+.results-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+.res-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; padding: 1.5rem; }
+.res-lg-value { font-size: 32px; font-weight: 500; color: var(--color-accent); letter-spacing: -0.02em; margin: 0.5rem 0; }
+.res-subtitle { font-size: 12px; color: var(--color-text-tertiary); }
+
+.chart-container { position: relative; width: 100%; height: 260px; }
+
+.mobile-bar { display: none; position: sticky; bottom: 0; left: 0; width: 100%; background: var(--color-background-primary); border-top: 0.5px solid var(--color-border-secondary); padding: 1rem; z-index: 100; justify-content: space-between; align-items: center; }
+
+@media (max-width: 768px) {
+  .walkthrough-layout { flex-direction: column; padding: 1rem; gap: 1rem; }
+  .sidebar { display: none; }
+  .mobile-bar { display: flex; }
+}
+</style>
+
+<div class="walkthrough-layout">
+  <div class="main-content">
+    <div class="progress-container">
+      <div id="progress-bar" class="progress-bar" style="width: 12.5%"></div>
+    </div>
+
+    <!-- Step Screens -->
+    <div id="step-screens" class="step-box">
+      <!-- Content injected by JS -->
+    </div>
+
+    <div class="nav-buttons">
+      <a id="back-btn" class="back-link" style="display: none;" onclick="prevStep()">← Back</a>
+      <span></span>
+      <button id="next-btn" class="continue-btn" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="summary-title">Your FIRE picture so far</div>
+    <div id="sidebar-content">
+      <!-- Summary content -->
+    </div>
+    <div id="side-progress-box" style="margin-top:2rem">
+       <div class="summary-label" style="margin-bottom:0.5rem">Progress to target</div>
+       <div class="progress-container" style="margin-bottom:0.5rem">
+         <div id="side-progress-bar" class="progress-bar" style="width: 0%"></div>
+       </div>
+       <div id="side-progress-text" class="summary-value" style="width:100%; text-align:left">0%</div>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-bar">
+   <div id="mob-target" class="summary-value" style="text-align:left">FIRE Target: ₹0 Cr</div>
+   <div id="mob-progress" class="summary-value">0% On Track</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const state = {
+  monthly: 80000,
+  expenseMultiplier: 1.0,
+  adjustedMonthly: 80000,
+  currentAge: 30,
+  retirementAge: 60,
+  retirementDuration: 45,
+  yearsToRetire: 30,
+  currentCorpus: 1000000,
+  projectedFV: 0,
+  monthlySIP: 20000,
+  sipStepUp: 0,
+  equity: 70,
+  debt: 20,
+  cash: 10,
+  blendedReturn: 0.10,
+  wr: 4.0,
+  cushionYears: 1,
+  fireTarget: 0,
+  totalTarget: 0,
+  projectedAtRetirement: 0,
+  gap: 0,
+  currentStep: 1
+};
+
+const STEPS_TOTAL = 8;
+let donutChart = null;
+let survivalChart = null;
+let growthChart = null;
+
+function fmt(n) {
+  let abs = Math.abs(n);
+  let s = "";
+  if (abs >= 10000000) s = "₹" + (abs/10000000).toFixed(2) + " Cr";
+  else if (abs >= 100000) s = "₹" + (abs/100000).toFixed(1) + "L";
+  else s = "₹" + Math.round(abs).toLocaleString("en-IN");
+  return n < 0 ? "-" + s : s;
+}
+
+function calculate() {
+  state.adjustedMonthly = state.monthly * state.expenseMultiplier;
+  state.retirementDuration = 105 - state.retirementAge;
+  state.yearsToRetire = state.retirementAge - state.currentAge;
+  
+  // Future Value of Existing
+  state.projectedFV = state.currentCorpus * Math.pow(1 + state.blendedReturn, state.yearsToRetire);
+  
+  // Withdrawal Rate Logic
+  if (state.currentStep === 2) {
+    if (state.retirementDuration > 40) state.wr = 3.0;
+    else if (state.retirementDuration >= 30) state.wr = 3.5;
+    else state.wr = 4.0;
+  }
+
+  // FIRE Target
+  state.fireTarget = (state.adjustedMonthly * 12) / (state.wr / 100);
+  state.totalTarget = state.fireTarget + (state.adjustedMonthly * 12 * state.cushionYears);
+
+  // SIP Growth
+  let r = state.blendedReturn / 12;
+  let n = state.yearsToRetire * 12;
+  let sipCorpus = 0;
+  if (state.sipStepUp === 0) {
+    sipCorpus = state.monthlySIP * (Math.pow(1 + r, n) - 1) / r * (1 + r);
+  } else {
+    let monthlySip = state.monthlySIP;
+    for (let y = 1; y <= state.yearsToRetire; y++) {
+      for (let m = 1; m <= 12; m++) {
+        sipCorpus = sipCorpus * (1 + r) + monthlySip;
+      }
+      monthlySip *= (1 + state.sipStepUp);
+    }
+  }
+  state.projectedAtRetirement = state.projectedFV + sipCorpus;
+  state.gap = state.totalTarget - state.projectedAtRetirement;
+  
+  updateSidebar();
+}
+
+function updateSidebar() {
+  const content = `
+    <div class="summary-item">
+      <span class="summary-label">Monthly expenses</span>
+      <span class="summary-value">${fmt(state.adjustedMonthly)}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Retire at age</span>
+      <span class="summary-value">${state.retirementAge} (in ${state.yearsToRetire}y)</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Current assets</span>
+      <span class="summary-value">${fmt(state.currentCorpus)} → ${fmt(state.projectedFV)}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Monthly SIP</span>
+      <span class="summary-value">${fmt(state.monthlySIP)}/mo</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">SWR Target</span>
+      <span class="summary-value">${state.wr}% (${Math.round(100/state.wr)}x)</span>
+    </div>
+    <div class="summary-item" style="border:none; margin-top:1rem">
+      <span class="summary-label" style="font-weight:500; color:var(--color-text-primary)">FIRE Target</span>
+      <span class="summary-value" style="font-size:16px; color:var(--color-accent)">${fmt(state.totalTarget)}</span>
+    </div>
+  `;
+  document.getElementById('sidebar-content').innerHTML = content;
+  
+  let progress = Math.min(100, Math.round((state.projectedAtRetirement / state.totalTarget) * 100));
+  if (isNaN(progress)) progress = 0;
+  document.getElementById('side-progress-bar').style.width = progress + '%';
+  document.getElementById('side-progress-text').innerText = progress + '% On Track';
+  
+  document.getElementById('mob-target').innerText = "Target: " + fmt(state.totalTarget);
+  document.getElementById('mob-progress').innerText = progress + "% On Track";
+}
+
+function setStep(n) {
+  state.currentStep = n;
+  document.getElementById('progress-bar').style.width = (n / STEPS_TOTAL * 100) + '%';
+  document.getElementById('back-btn').style.display = n > 1 ? 'block' : 'none';
+  document.getElementById('next-btn').innerText = n === STEPS_TOTAL ? 'Finish' : 'Continue →';
+  renderStep();
+  calculate();
+}
+
+function nextStep() {
+  if (state.currentStep < STEPS_TOTAL) setStep(state.currentStep + 1);
+  else window.print();
+}
+
+function prevStep() {
+  if (state.currentStep > 1) setStep(state.currentStep - 1);
+}
+
+function renderStep() {
+  const container = document.getElementById('step-screens');
+  let h = '';
+
+  switch(state.currentStep) {
+    case 1:
+      h = `
+        <div class="explanation">First things first — how much do you actually spend each month? Include rent, food, bills, subscriptions, eating out, everything. Don't include EMIs on loans you'll pay off before retirement.</div>
+        <div class="input-section">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center">
+               <label class="input-label">monthly expenses</label>
+               <span class="display-value">${fmt(state.monthly)}</span>
+            </div>
+            <input type="range" min="10000" max="500000" step="5000" value="${state.monthly}" oninput="state.monthly=parseInt(this.value); renderStep(); calculate()">
+          </div>
+          <div>
+            <label class="input-label">Will your expenses change after retirement?</label>
+            <div class="pill-group">
+               <button class="pill ${state.expenseMultiplier === 1.0 ? 'active' : ''}" onclick="state.expenseMultiplier=1.0; renderStep(); calculate()">About the same</button>
+               <button class="pill ${state.expenseMultiplier === 0.85 ? 'active' : ''}" onclick="state.expenseMultiplier=0.85; renderStep(); calculate()">Lower (Minimalist)</button>
+               <button class="pill ${state.expenseMultiplier === 1.15 ? 'active' : ''}" onclick="state.expenseMultiplier=1.15; renderStep(); calculate()">Higher (Lifestyle)</button>
+            </div>
+          </div>
+          <div class="banner banner-info">So we'll plan for <b>${fmt(state.monthly * state.expenseMultiplier)}/month</b> in today's money.</div>
+        </div>
+      `;
+      break;
+    case 2:
+      h = `
+        <div class="explanation">Your retirement duration is the single biggest factor in how much money you need. Someone retiring at 35 needs to fund 50+ years. The longer the runway, the more conservative you need to be.</div>
+        <div class="input-section">
+           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem">
+             <div>
+               <label class="input-label">Current Age</label>
+               <input type="number" value="${state.currentAge}" class="pill" style="width:100%; border-radius:12px; font-size:18px" oninput="state.currentAge=parseInt(this.value); renderStep(); calculate()">
+             </div>
+             <div>
+               <label class="input-label">Target Retire Age</label>
+               <input type="number" value="${state.retirementAge}" class="pill" style="width:100%; border-radius:12px; font-size:18px" oninput="state.retirementAge=parseInt(this.value); renderStep(); calculate()">
+             </div>
+           </div>
+           <div class="banner banner-info">You have <b>${state.yearsToRetire} years</b> to build, and your corpus needs to last <b>${state.retirementDuration} years</b>.</div>
+           ${state.retirementDuration > 40 ? '<div class="banner banner-warning">Long retirement — we\'ve set a conservative 3% withdrawal rate.</div>' : 
+             state.retirementDuration >= 30 ? '<div class="banner banner-info" style="background:#dbeafe; color:#1e40af">We\'ll use 3.5% as your withdrawal rate baseline.</div>' : 
+             '<div class="banner banner-success">Standard 4% safe withdrawal rule applies.</div>'}
+        </div>
+      `;
+      break;
+    case 3:
+      h = `
+        <div class="explanation">You're probably not starting from zero. Your EPF balance, mutual fund portfolio, FDs, PPF — all of it counts. Don't include your house if you plan to live in it. We want investable assets only.</div>
+        <div class="input-section">
+           <div style="display:flex; justify-content:space-between; align-items:center">
+               <label class="input-label">Current Assets</label>
+               <span class="display-value">${fmt(state.currentCorpus)}</span>
+            </div>
+            <input type="range" min="0" max="50000000" step="100000" value="${state.currentCorpus}" oninput="state.currentCorpus=parseInt(this.value); renderStep(); calculate()">
+            <div class="banner banner-success">Your current savings will grow to <b>${fmt(state.projectedFV)}</b> by age ${state.retirementAge}.</div>
+        </div>
+      `;
+      break;
+    case 4:
+      h = `
+        <div class="explanation">How much can you set aside every month? This is your SIP amount. A good thumb rule: if you're not feeling it a little, you're probably not saving enough.</div>
+        <div class="input-section">
+           <div style="display:flex; justify-content:space-between; align-items:center">
+               <label class="input-label">Monthly SIP</label>
+               <span class="display-value">${fmt(state.monthlySIP)}</span>
+            </div>
+            <input type="range" min="1000" max="200000" step="1000" value="${state.monthlySIP}" oninput="state.monthlySIP=parseInt(this.value); renderStep(); calculate()">
+            
+            <label class="input-label">Expected Annual Savings Growth?</label>
+            <div class="pill-group">
+               <button class="pill ${state.sipStepUp === 0 ? 'active' : ''}" onclick="state.sipStepUp=0; renderStep(); calculate()">No Growth</button>
+               <button class="pill ${state.sipStepUp === 0.07 ? 'active' : ''}" onclick="state.sipStepUp=0.07; renderStep(); calculate()">Moderate (7%)</button>
+               <button class="pill ${state.sipStepUp === 0.10 ? 'active' : ''}" onclick="state.sipStepUp=0.10; renderStep(); calculate()">Aggressive (10%)</button>
+            </div>
+        </div>
+      `;
+      break;
+    case 5:
+      h = `
+        <div class="explanation">Where you put your money matters. subtraction your age from 100 — that's your equity percentage. High growth needs high equity.</div>
+        <div class="input-section">
+           <div style="display:flex; align-items:center; gap:2rem">
+              <div class="chart-container" style="width:120px; height:120px; flex-shrink:0">
+                 <canvas id="donut-chart" width="120" height="120"></canvas>
+              </div>
+              <div style="flex:1; display:flex; flex-direction:column; gap:0.5rem">
+                 <div style="display:flex; justify-content:space-between; font-size:12px"><span>Equity</span><span>${state.equity}%</span></div>
+                 <input type="range" value="${state.equity}" oninput="state.equity=parseInt(this.value); state.debt=100-state.equity-state.cash; renderStep(); calculate()">
+                 <div style="display:flex; justify-content:space-between; font-size:12px"><span>Debt</span><span>${state.debt}%</span></div>
+                 <input type="range" value="${state.debt}" oninput="state.debt=parseInt(this.value); state.equity=100-state.debt-state.cash; renderStep(); calculate()">
+              </div>
+           </div>
+           <div class="banner banner-info">Expected portfolio return: <b>${(state.equity*0.12 + state.debt*0.07 + state.cash*0.05).toFixed(1)}%</b></div>
+        </div>
+      `;
+      setTimeout(() => initDonut(), 10);
+      break;
+    case 6:
+      h = `
+        <div class="explanation">Indian inflation has averaged about 6%. The 'withdrawal rate' is what % of your corpus you take out in year 1. Nx corpus needed.</div>
+        <div class="input-section">
+           <label class="input-label">Select Withdrawal Rate (SWR)</label>
+           <div class="pill-group">
+             <button class="pill ${state.wr === 3.0 ? 'active' : ''}" onclick="state.wr=3.0; renderStep(); calculate()">3.0% (Safer)</button>
+             <button class="pill ${state.wr === 3.5 ? 'active' : ''}" onclick="state.wr=3.5; renderStep(); calculate()">3.5% (Balanced)</button>
+             <button class="pill ${state.wr === 4.0 ? 'active' : ''}" onclick="state.wr=4.0; renderStep(); calculate()">4.0% (Standard)</button>
+             <button class="pill ${state.wr === 4.5 ? 'active' : ''}" onclick="state.wr=4.5; renderStep(); calculate()">4.5% (Aggressive)</button>
+           </div>
+           <div class="banner banner-success" style="font-size:16px">Target Corpus: <b>${fmt(state.fireTarget)}</b></div>
+        </div>
+      `;
+      break;
+    case 7:
+      h = `
+        <div class="explanation">A cash cushion is 2-3 years of expenses kept safe (FDs). It prevents selling stocks during a market crash right after you retire.</div>
+        <div class="input-section">
+           <label class="input-label">Cash Cushion Years</label>
+           <div class="pill-group">
+              <button class="pill ${state.cushionYears === 0 ? 'active' : ''}" onclick="state.cushionYears=0; renderStep(); calculate()">None</button>
+              <button class="pill ${state.cushionYears === 1 ? 'active' : ''}" onclick="state.cushionYears=1; renderStep(); calculate()">1 Year</button>
+              <button class="pill ${state.cushionYears === 2 ? 'active' : ''}" onclick="state.cushionYears=2; renderStep(); calculate()">2 Years</button>
+              <button class="pill ${state.cushionYears === 3 ? 'active' : ''}" onclick="state.cushionYears=3; renderStep(); calculate()">3 Years</button>
+           </div>
+           <div class="banner banner-info">Total Target: <b>${fmt(state.totalTarget)}</b><br><small style="opacity:0.6">+ ${fmt(state.adjustedMonthly * 12 * state.cushionYears)} safety buffer</small></div>
+        </div>
+      `;
+      break;
+    case 8:
+      h = renderResults();
+      setTimeout(() => initResultsCharts(), 10);
+      break;
+  }
+  container.innerHTML = h;
+}
+
+function initDonut() {
+  const ctx = document.getElementById('donut-chart');
+  if(!ctx) return;
+  if(donutChart) donutChart.destroy();
+  donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [state.equity, state.debt, state.cash],
+        backgroundColor: ['#1d9e75', '#378add', '#94a3b8'],
+        borderWidth: 0
+      }]
+    },
+    options: { responsive: false, cutout: '60%', plugins: { tooltip: { enabled: false } } }
+  });
+}
+
+function renderResults() {
+  return `
+    <div class="results-grid">
+       <div class="res-card">
+          <div class="res-subtitle">Total FIRE Corpus Needed</div>
+          <div class="res-lg-value">${fmt(state.totalTarget)}</div>
+          <div class="banner ${state.gap < 0 ? 'banner-success' : 'banner-warning'}">
+             ${state.gap < 0 ? 'Great news — you\'re on track! You hit your goal early.' : 
+             'You are ' + fmt(state.gap) + ' short of your target.'}
+          </div>
+       </div>
+       
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-8" style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem">
+          <div class="res-card">
+             <div class="res-subtitle">From Existing Growths</div>
+             <div class="res-lg-value" style="font-size:20px">${fmt(state.projectedFV)}</div>
+          </div>
+          <div class="res-card">
+             <div class="res-subtitle">From Monthly SIPs</div>
+             <div class="res-lg-value" style="font-size:20px">${fmt(state.projectedAtRetirement - state.projectedFV)}</div>
+          </div>
+       </div>
+
+       <div class="res-card">
+         <div class="summary-label" style="margin-bottom:1rem">Portfolio Growth Projection</div>
+         <div class="chart-container" style="height:300px">
+           <canvas id="growth-chart"></canvas>
+         </div>
+       </div>
+
+       <div class="res-card">
+         <div class="summary-label" style="margin-bottom:1rem">Post-Retirement Survival</div>
+         <div class="chart-container" style="height:200px">
+           <canvas id="survival-chart"></canvas>
+         </div>
+       </div>
+    </div>
+  `;
+}
+
+function initResultsCharts() {
+  const gCanvas = document.getElementById('growth-chart');
+  if(gCanvas) {
+    if(growthChart) growthChart.destroy();
+    let years = [];
+    let portfolioData = [];
+    let targetData = [];
+    let r = state.blendedReturn / 12;
+    let curr = state.currentCorpus;
+    let monthlySip = state.monthlySIP;
+
+    for (let y = 0; y <= state.yearsToRetire; y++) {
+      years.push(state.currentAge + y);
+      portfolioData.push(curr);
+      targetData.push(state.totalTarget);
+      // Simulate year
+      for(let m=1; m<=12; m++) {
+        curr = curr * (1 + r) + monthlySip;
+      }
+      monthlySip *= (1 + state.sipStepUp);
+    }
+
+    growthChart = new Chart(gCanvas, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: [
+          { label: 'Projected Wealth', data: portfolioData, borderColor: '#1d9e75', backgroundColor: '#1d9e7520', fill: true, tension: 0.3, pointRadius: 0 },
+          { label: 'FIRE Target', data: targetData, borderColor: '#185fa5', borderDash: [5, 5], fill: false, pointRadius: 0 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { callback: v => fmt(v) } } } }
+    });
+  }
+
+  const sCanvas = document.getElementById('survival-chart');
+  if(sCanvas) {
+    if(survivalChart) survivalChart.destroy();
+    const rates = [3, 3.5, 4, 4.5];
+    const results = rates.map(r => {
+       let corpus = state.fireTarget;
+       let draw = state.adjustedMonthly * 12;
+       let realRet = 0.07;
+       let infl = 0.06;
+       let p = corpus;
+       for(let i=0; i<state.retirementDuration; i++) {
+         p = p * (1 + realRet) - draw;
+         draw *= (1 + infl);
+         if(p <= 0) return 0;
+       }
+       return p;
+    });
+
+    survivalChart = new Chart(sCanvas, {
+      type: 'bar',
+      data: {
+        labels: rates.map(r => r + '% Rate'),
+        datasets: [{
+          data: results,
+          backgroundColor: ['#1d9e75', '#378add', '#ef9f27', '#185fa5'],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { ticks: { callback: v => fmt(v) } } }
+      }
+    });
+  }
+}
+
+// Initial Call
+setStep(1);
+</script>

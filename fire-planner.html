@@ -1,0 +1,506 @@
+<style>
+:root {
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f8fafc;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94a3b8;
+  --color-border-tertiary: #f1f5f9;
+  --color-border-secondary: #e2e8f0;
+  --color-accent: #185fa5;
+  --color-accent-text: #e6f1fb;
+  --color-background-warning: #fff9eb;
+  --color-text-warning: #92400e;
+  
+  --asset-equity: #1d9e75;
+  --asset-debt: #378add;
+  --asset-gold: #ef9f27;
+  --asset-ppf: #7f77dd;
+  --asset-cash: #b4b2a9;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background-primary: #0f172a;
+    --color-background-secondary: #1e293b;
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #94a3b8;
+    --color-text-tertiary: #64748b;
+    --color-border-tertiary: #1e293b;
+    --color-border-secondary: #334155;
+    --color-background-warning: #2d2010;
+    --color-text-warning: #fcd34d;
+  }
+}
+
+* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+body { background: var(--color-background-primary); color: var(--color-text-primary); font-size: 14px; line-height: 1.5; font-weight: 400; padding: 1rem; }
+
+.app-container { max-width: 800px; margin: 0 auto; }
+
+header { display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid var(--color-border-secondary); margin-bottom: 1.5rem; }
+.app-title { font-size: 16px; font-weight: 500; letter-spacing: -0.01em; color: var(--color-text-primary); padding-bottom: 0.5rem; }
+
+.tabs { display: flex; gap: 1.5rem; }
+.tab-btn { background: none; border: none; padding: 0.75rem 0; font-size: 13px; font-weight: 500; color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab-btn.active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+
+section { display: none; margin-bottom: 2rem; }
+section.active { display: block; }
+
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.metric-card { background: var(--color-background-secondary); border-radius: 8px; padding: 0.75rem 1rem; }
+.metric-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.25rem; }
+.metric-value { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+
+.input-group { margin-bottom: 1.25rem; }
+.input-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.input-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+.input-value { font-size: 13px; font-weight: 500; color: var(--color-accent); }
+
+input[type="range"] { width: 100%; height: 4px; background: var(--color-border-secondary); border-radius: 2px; appearance: none; outline: none; }
+input[type="range"]::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; background: var(--color-accent); border-radius: 50%; cursor: pointer; border: 2px solid var(--color-background-primary); }
+
+.pills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+.pill { padding: 0.4rem 0.75rem; border-radius: 100px; border: 0.5px solid var(--color-border-secondary); font-size: 12px; font-weight: 500; background: none; color: var(--color-text-secondary); cursor: pointer; transition: all 0.2s; }
+.pill.active { background: var(--color-accent); color: var(--color-accent-text); border-color: var(--color-accent); }
+
+.warning-banner { background: var(--color-background-warning); color: var(--color-text-warning); padding: 1rem; border-radius: 8px; font-size: 12px; margin-bottom: 1.5rem; }
+
+.chart-wrapper { position: relative; width: 100%; }
+
+.survival-bar { height: 32px; background: var(--color-background-secondary); border-radius: 4px; display: flex; align-items: center; justify-content: space-between; padding: 0 0.75rem; margin-bottom: 0.75rem; font-size: 12px; font-weight: 500; overflow: hidden; position: relative; }
+.survival-fill { position: absolute; left: 0; top: 0; height: 100%; transition: width 0.5s ease-out; z-index: 1; }
+.survival-label { position: relative; z-index: 2; }
+
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.info-card { padding: 1rem; background: var(--color-background-secondary); border-radius: 8px; }
+.info-title { font-size: 12px; font-weight: 500; margin-bottom: 0.5rem; color: var(--color-text-primary); }
+.info-desc { font-size: 12px; color: var(--color-text-secondary); }
+
+.asset-control { display: flex; flex-direction: column; gap: 1rem; }
+.asset-item { display: flex; align-items: center; gap: 1rem; }
+.asset-color { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.asset-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+
+.doughnut-container { display: flex; align-items: center; gap: 2rem; justify-content: center; padding: 1rem 0; }
+.doughnut-legend { display: flex; flex-direction: column; gap: 0.5rem; }
+.legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 12px; }
+.legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
+.legend-val { font-weight: 500; color: var(--color-text-primary); }
+
+.comparison-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+.inst-card { padding: 0.75rem 1rem; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 8px; }
+.inst-name { font-size: 13px; font-weight: 500; margin-bottom: 0.5rem; color: var(--color-text-primary); }
+.tag { font-size: 10px; font-weight: 500; padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-block; margin-right: 0.4rem; margin-top: 0.4rem; }
+.tag-green { background: #dcfce7; color: #166534; }
+.tag-amber { background: #fef3c7; color: #92400e; }
+.tag-red { background: #fee2e2; color: #991b1b; }
+.inst-ret { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-top: 0.5rem; }
+
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 1rem; }
+
+@media (max-width: 600px) {
+  .metric-grid { grid-template-columns: 1fr; }
+  .tabs { gap: 0.75rem; }
+  .doughnut-container { flex-direction: column; gap: 1rem; }
+}
+</style>
+
+<div class="app-container">
+  <header>
+    <div class="app-title">FIRE planner</div>
+    <div class="tabs">
+      <button class="tab-btn active" id="tab1-btn" onclick="showTab(1)">corpus calculator</button>
+      <button class="tab-btn" id="tab2-btn" onclick="showTab(2)">investment explorer</button>
+    </div>
+  </header>
+
+  <section id="tab1" class="active">
+    <div class="card">
+      <div class="input-group">
+        <div class="input-header">
+          <label class="input-label">monthly expenses</label>
+          <span class="input-value" id="val-monthly">₹40,000 /mo</span>
+        </div>
+        <input type="range" id="input-monthly" min="10000" max="300000" step="5000" value="40000" oninput="updateTab1()">
+      </div>
+      <div class="input-group">
+        <div class="input-header">
+          <label class="input-label">retirement duration</label>
+          <span class="input-value" id="val-duration">30 years</span>
+        </div>
+        <input type="range" id="input-duration" min="15" max="60" step="1" value="30" oninput="updateTab1()">
+      </div>
+      <div class="input-group">
+        <div class="input-header">
+          <label class="input-label">cash cushion</label>
+          <span class="input-value" id="val-cushion">2 years</span>
+        </div>
+        <input type="range" id="input-cushion" min="0" max="3" step="0.5" value="2" oninput="updateTab1()">
+      </div>
+      <div class="input-group">
+        <label class="input-label">withdrawal rate (%)</label>
+        <div class="pills" id="wr-pills">
+          <button class="pill" onclick="setWR(3)">3% (33x)</button>
+          <button class="pill" onclick="setWR(3.5)">3.5% (28.6x)</button>
+          <button class="pill active" onclick="setWR(4)">4% (25x)</button>
+          <button class="pill" onclick="setWR(4.5)">4.5% (22x)</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="wr-warning" class="warning-banner" style="display: none;"></div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">fire corpus needed</div>
+        <div class="metric-value" id="out-corpus">₹1.20 Cr</div>
+        <div class="metric-label" id="out-multiplier" style="margin-top:2px">25x annual expenses</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">with cash cushion</div>
+        <div class="metric-value" id="out-total">₹1.28 Cr</div>
+        <div class="metric-label" id="out-cushion-sub" style="margin-top:2px">+ 2yr cash cushion</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">annual withdrawal</div>
+        <div class="metric-value" id="out-annual">₹4.8L</div>
+      </div>
+    </div>
+
+    <div class="section-label">portfolio survival simulation</div>
+    <div class="card" id="survival-chart"></div>
+
+    <div class="section-label">withdrawal strategy reference</div>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-title">Fixed SWR</div>
+        <div class="info-desc">Withdraw fixed % of starting corpus, inflation-adjusted yearly. Simple but inflexible.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-title">Variable %</div>
+        <div class="info-desc">Withdraw % of current portfolio each year. Spending falls naturally in downturns.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-title">VPW</div>
+        <div class="info-desc">Variable Percentage Withdrawal — adjusts rate by age and time horizon. Most adaptive.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab2">
+    <div class="section-label">Asset allocation builder</div>
+    <div class="card">
+      <div class="doughnut-container">
+        <div class="chart-wrapper" style="width: 120px; height: 120px;">
+          <canvas id="asset-doughnut" width="120" height="120"></canvas>
+        </div>
+        <div class="doughnut-legend" id="asset-legend"></div>
+      </div>
+      <div class="asset-control" id="asset-controls"></div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">blended return</div>
+        <div class="metric-value" id="out-blended-ret">10.1%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">volatility</div>
+        <div class="metric-value" id="out-blended-vol">Medium</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">liquidity</div>
+        <div class="metric-value" id="out-blended-liq">High</div>
+      </div>
+    </div>
+
+    <div class="section-label">SIP growth simulator</div>
+    <div class="card">
+      <div class="input-group">
+        <div class="input-header">
+          <label class="input-label">monthly SIP</label>
+          <span class="input-value" id="val-sip">₹20,000 /mo</span>
+        </div>
+        <input type="range" id="input-sip" min="5000" max="200000" step="5000" value="20000" oninput="updateTab2()">
+      </div>
+      <div class="input-group">
+        <div class="input-header">
+          <label class="input-label">investment horizon</label>
+          <span class="input-value" id="val-horizon">15 years</span>
+        </div>
+        <input type="range" id="input-horizon" min="5" max="40" step="1" value="15" oninput="updateTab2()">
+      </div>
+      
+      <div class="metric-grid" style="margin-top: 2rem;">
+        <div class="metric-card">
+          <div class="metric-label">total invested</div>
+          <div class="metric-value" id="out-sip-invested">₹36.0L</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">corpus value</div>
+          <div class="metric-value" id="out-sip-corpus">₹82.5L</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">wealth ratio</div>
+          <div class="metric-value" id="out-sip-ratio">2.3x</div>
+        </div>
+      </div>
+
+      <div class="chart-wrapper" style="height: 240px; margin-top: 1.5rem;">
+        <canvas id="sip-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="section-label">Instrument comparison grid</div>
+    <div class="comparison-grid" id="inst-grid"></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let state = {
+  monthlyExpenses: 40000,
+  duration: 30,
+  cushion: 2,
+  wr: 4,
+  assets: [
+    { name: 'Equity MF', val: 70, ret: 0.115, vol: 3, liq: 3, col: '#1D9E75' },
+    { name: 'Debt MF', val: 20, ret: 0.070, vol: 1, liq: 3, col: '#378ADD' },
+    { name: 'Gold MF', val: 0, ret: 0.080, vol: 2, liq: 3, col: '#EF9F27' },
+    { name: 'PPF / EPF', val: 0, ret: 0.077, vol: 0, liq: 1, col: '#7F77DD' },
+    { name: 'Cash / FD', val: 10, ret: 0.065, vol: 0, liq: 2, col: '#B4B2A9' }
+  ],
+  sip: 20000,
+  horizon: 15
+};
+
+let doughnutChart = null;
+let sipChart = null;
+
+function fmt(n) {
+  n = Math.round(n);
+  if (n >= 10000000) return "₹" + (n/10000000).toFixed(2) + " Cr";
+  if (n >= 100000) return "₹" + (n/100000).toFixed(1) + "L";
+  return "₹" + n.toLocaleString("en-IN");
+}
+
+function showTab(n) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab' + n).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab' + n + '-btn').classList.add('active');
+  if (n === 2) updateTab2();
+}
+
+function setWR(n) {
+  state.wr = n;
+  document.querySelectorAll('#wr-pills .pill').forEach(p => {
+    p.classList.toggle('active', p.innerText.includes(n + '%'));
+  });
+  updateTab1();
+}
+
+function simulate(annual, wrPct, years) {
+  let corpus = annual / (wrPct / 100);
+  let realReturn = 0.07;
+  let inflation = 0.06;
+  let portfolio = corpus;
+  let draw = annual;
+  let initial = corpus;
+  for (let i = 0; i < years; i++) {
+    portfolio = portfolio * (1 + realReturn) - draw;
+    draw *= (1 + inflation);
+    if (portfolio <= 0) return 0;
+  }
+  return portfolio;
+}
+
+function updateTab1() {
+  state.monthlyExpenses = parseInt(document.getElementById('input-monthly').value);
+  state.duration = parseInt(document.getElementById('input-duration').value);
+  state.cushion = parseFloat(document.getElementById('input-cushion').value);
+
+  document.getElementById('val-monthly').innerText = fmt(state.monthlyExpenses) + " /mo";
+  document.getElementById('val-duration').innerText = state.duration + " years";
+  document.getElementById('val-cushion').innerText = state.duration + " years"; // Fixed to display state.cushion instead
+  document.getElementById('val-cushion').innerText = state.cushion + " years";
+
+  let annual = state.monthlyExpenses * 12;
+  let corpus = annual / (state.wr / 100);
+  let cushionAmt = annual * state.cushion;
+  let totalTarget = corpus + cushionAmt;
+  let multiplier = Math.round(100 / state.wr);
+
+  document.getElementById('out-corpus').innerText = fmt(corpus);
+  document.getElementById('out-multiplier').innerText = multiplier + "x annual expenses";
+  document.getElementById('out-total').innerText = fmt(totalTarget);
+  document.getElementById('out-cushion-sub').innerText = "+ " + state.cushion + "yr cash cushion";
+  document.getElementById('out-annual').innerText = fmt(annual);
+
+  let warning = document.getElementById('wr-warning');
+  if (state.wr >= 4.0 && state.duration > 30) {
+    warning.innerText = "4% was designed for 30-year retirements. With " + state.duration + " years, consider 3–3.5%.";
+    warning.style.display = 'block';
+  } else {
+    warning.style.display = 'none';
+  }
+
+  const rates = [3, 3.5, 4, 4.5];
+  let h = '';
+  let maxPort = 0;
+  let results = rates.map(r => {
+    let p = simulate(annual, r, state.duration);
+    if (p > maxPort) maxPort = p;
+    return p;
+  });
+
+  rates.forEach((r, i) => {
+    let p = results[i];
+    let pct = maxPort === 0 ? 0 : (p / maxPort) * 100;
+    let color = r === 3 ? '#1D9E75' : r === 4.5 ? '#185FA5' : '#EF9F27';
+    let status = p === 0 ? 'depleted' : fmt(p);
+    h += `<div class="survival-bar">
+      <div class="survival-fill" style="width: ${pct}%; background: ${color}; opacity: 0.2"></div>
+      <div class="survival-label">${r}% withdrawal rate</div>
+      <div class="survival-label">${status}</div>
+    </div>`;
+  });
+  document.getElementById('survival-chart').innerHTML = h;
+}
+
+function handleAssetChange(idx, newVal) {
+  newVal = parseInt(newVal);
+  state.assets[idx].val = newVal;
+  let needed = 100 - newVal;
+  let othersIndices = state.assets.map((_, i) => i).filter(i => i !== idx);
+  let restSum = othersIndices.reduce((sum, i) => sum + state.assets[i].val, 0);
+
+  if (restSum === 0) {
+    othersIndices.forEach(i => state.assets[i].val = needed / othersIndices.length);
+  } else {
+    othersIndices.forEach(i => {
+      state.assets[i].val = (state.assets[i].val / restSum) * needed;
+    });
+  }
+
+  let total = state.assets.reduce((sum, a) => sum + a.val, 0);
+  let diff = 100 - total;
+  state.assets[othersIndices[othersIndices.length - 1]].val += diff;
+
+  state.assets.forEach(a => a.val = Math.max(0, Math.min(100, a.val)));
+  updateTab2();
+}
+
+function updateTab2() {
+  document.getElementById('input-sip').value = state.sip;
+  document.getElementById('val-sip').innerText = fmt(state.sip) + " /mo";
+  document.getElementById('input-horizon').value = state.horizon;
+  document.getElementById('val-horizon').innerText = state.horizon + " years";
+
+  let h = '';
+  let legendH = '';
+  state.assets.forEach((a, i) => {
+    h += `<div class="input-group">
+      <div class="input-header">
+        <div style="display:flex; align-items:center; gap:8px">
+          <div class="asset-color" style="background:${a.col}"></div>
+          <label class="input-label">${a.name}</label>
+        </div>
+        <span class="input-value">${Math.round(a.val)}%</span>
+      </div>
+      <input type="range" value="${a.val}" oninput="handleAssetChange(${i}, this.value)">
+    </div>`;
+    legendH += `<div class="legend-item"><div class="legend-swatch" style="background:${a.col}"></div><span>${a.name}</span><span class="legend-val">${Math.round(a.val)}%</span></div>`;
+  });
+  document.getElementById('asset-controls').innerHTML = h;
+  document.getElementById('asset-legend').innerHTML = legendH;
+
+  let bRet = state.assets.reduce((sum, a) => sum + (a.ret * a.val/100), 0);
+  let bVol = state.assets.reduce((sum, a) => sum + (a.vol * a.val/100), 0);
+  let bLiq = state.assets.reduce((sum, a) => sum + (a.liq * a.val/100), 0);
+
+  document.getElementById('out-blended-ret').innerText = (bRet * 100).toFixed(1) + "%";
+  document.getElementById('out-blended-vol').innerText = bVol < 1 ? 'Very low' : bVol < 2 ? 'Low' : bVol < 2.5 ? 'Medium' : 'High';
+  document.getElementById('out-blended-liq').innerText = bLiq < 1.5 ? 'Low' : bLiq < 2.5 ? 'Medium' : 'High';
+
+  if (doughnutChart) doughnutChart.destroy();
+  doughnutChart = new Chart(document.getElementById('asset-doughnut'), {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: state.assets.map(a => a.val),
+        backgroundColor: state.assets.map(a => a.col),
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: false,
+      cutout: '60%',
+      plugins: { legend: { display: false }, tooltip: { enabled: false } }
+    }
+  });
+
+  state.sip = parseInt(document.getElementById('input-sip').value);
+  state.horizon = parseInt(document.getElementById('input-horizon').value);
+
+  let monthlyRate = bRet / 12;
+  let corpus = 0;
+  let chartData = [];
+  for (let m = 1; m <= state.horizon * 12; m++) {
+    corpus = corpus * (1 + monthlyRate) + state.sip;
+    if (m % 12 === 0) chartData.push({ year: m/12, corpus: corpus, invested: state.sip * m });
+  }
+
+  let totalInv = state.sip * state.horizon * 12;
+  document.getElementById('out-sip-invested').innerText = fmt(totalInv);
+  document.getElementById('out-sip-corpus').innerText = fmt(corpus);
+  document.getElementById('out-sip-ratio').innerText = (corpus / totalInv).toFixed(1) + "x";
+
+  if (sipChart) sipChart.destroy();
+  sipChart = new Chart(document.getElementById('sip-chart'), {
+    type: 'line',
+    data: {
+      labels: chartData.map(d => 'yr ' + d.year),
+      datasets: [
+        { label: 'Corpus value', data: chartData.map(d => d.corpus), borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.1)', fill: true, tension: 0.35, pointRadius: 0 },
+        { label: 'Amount invested', data: chartData.map(d => d.invested), borderColor: '#94a3b8', fill: false, tension: 0.35, pointRadius: 0 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10, weight: 500 }, color: '#94a3b8' } },
+        y: { ticks: { font: { size: 10, weight: 500 }, color: '#94a3b8', callback: v => fmt(v) } }
+      }
+    }
+  });
+}
+
+const instruments = [
+  { name: 'Equity MF', liq: 'High', vol: 'High', tax: '12.5% LTCG', sip: 'Yes', ret: '10–13%', liqCls: 'tag-green', volCls: 'tag-red', taxCls: 'tag-amber' },
+  { name: 'Debt MF', liq: 'High', vol: 'Low', tax: 'Income slab', sip: 'Yes', ret: '6–8%', liqCls: 'tag-green', volCls: 'tag-green', taxCls: 'tag-red' },
+  { name: 'PPF', liq: 'Locked', vol: 'None', tax: 'EEE', sip: 'Yes', ret: '7.1%', liqCls: 'tag-red', volCls: 'tag-green', taxCls: 'tag-green' },
+  { name: 'EPF / VPF', liq: 'Locked', vol: 'None', tax: 'EEE', sip: 'Salary', ret: '8.25%', liqCls: 'tag-red', volCls: 'tag-green', taxCls: 'tag-green' },
+  { name: 'FD', liq: 'Medium', vol: 'None', tax: 'Income slab', sip: 'No', ret: '6.5–7.5%', liqCls: 'tag-amber', volCls: 'tag-green', taxCls: 'tag-red' },
+  { name: 'Gold MF', liq: 'High', vol: 'Medium', tax: '20% idx', sip: 'Yes', ret: '7–9%', liqCls: 'tag-green', volCls: 'tag-amber', taxCls: 'tag-amber' }
+];
+
+let gridH = '';
+instruments.forEach(i => {
+  gridH += `<div class="inst-card">
+    <div class="inst-name">${i.name}</div>
+    <div class="tag ${i.liqCls}">${i.liq}</div>
+    <div class="tag ${i.volCls}">${i.vol}</div>
+    <div class="tag ${i.taxCls}">${i.tax}</div>
+    <div class="inst-ret">${i.ret} return</div>
+  </div>`;
+});
+document.getElementById('inst-grid').innerHTML = gridH;
+
+updateTab1();
+</script>
