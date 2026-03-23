@@ -29,8 +29,7 @@ export async function POST(req: Request) {
 
     if (!response.ok) {
        const errorText = await response.text();
-       console.error("Groq API Error:", errorText);
-       return NextResponse.json({ reply: `API Error: ${errorText}. Double-check your terminal was completely stopped and restarted after saving the key.` }, { status: 500 });
+       return NextResponse.json({ reply: `ET Wealth AI Connection Error: ${errorText}. Please verify the API key configuration.` }, { status: 500 });
     }
 
     const data = await response.json();
