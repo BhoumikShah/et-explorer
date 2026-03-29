@@ -1,0 +1,14 @@
+﻿
+app\onboarding\page.tsx:368
+:      case 6: return 
+"Medical expenses can be 
+the biggest threat to 
+retirement. Tell us about 
+your current health cover 
+so we can ensure you're 
+fully protected against 
+inflation.";
+app\onboarding\page.tsx:578
+:      case 6:
+
+

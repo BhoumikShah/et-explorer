@@ -8,7 +8,7 @@ import {
   INFLATION_RATE, 
   SAFE_WITHDRAWAL_RATE 
 } from '../knowledgeBase/assetReturns';
-import { calculateRequiredLifeCover } from '../knowledgeBase/insuranceRules';
+import { calculateRequiredLifeCover, assessHealthCover } from '../knowledgeBase/insuranceRules';
 
 /**
  * FIRE Types Mapping (Multipliers of Basic Expenses)
@@ -24,6 +24,87 @@ export const FIRE_TYPES = {
  */
 export const calculateEmergencyFund = (monthlyExpenses: number, months = 6): number => {
   return monthlyExpenses * months;
+};
+
+/**
+ * Calculates current monthly surplus for investments
+ */
+export const calculateMonthlySurplus = (
+  income: number, 
+  expenses: number, 
+  emi: number = 0, 
+  healthPremium: number = 0, 
+  otherDeductions: number = 0
+): number => {
+  return Math.max(0, income - expenses - emi - (healthPremium / 12) - otherDeductions);
+};
+
+/**
+ * Calculates net worth including home and mortgage
+ */
+export const calculateNetWorthWithMortgage = (
+  investments: number, 
+  propertyValue: number = 0, 
+  loanOutstanding: number = 0
+): number => {
+  return (investments + propertyValue) - loanOutstanding;
+};
+
+/**
+ * Project Loan Amortization
+ */
+export const projectLoanAmortization = (
+  principal: number,
+  annualRate: number,
+  remainingYears: number,
+  currentMonthlyEmi: number
+): number[] => {
+  const months = Math.ceil(remainingYears * 12);
+  const monthlyRate = (annualRate / 100) / 12;
+  const amortization = [];
+  let balance = principal;
+
+  for (let m = 0; m <= months; m++) {
+    amortization.push(Math.max(0, balance));
+    if (m === months) break;
+    
+    const interest = balance * monthlyRate;
+    const principalPaid = currentMonthlyEmi - interest;
+    balance -= principalPaid;
+  }
+  return amortization;
+};
+
+/**
+ * Health Insurance Recommendation
+ */
+export const recommendHealthCover = (
+  existingCover: number,
+  familySize: number,
+  age: number,
+  cityTier: 'tier1' | 'tier2' | 'tier3' = 'tier1',
+  medicalInflation: number = 0.10
+) => {
+  const location = cityTier === 'tier1' ? 'metro' : 'non-metro';
+  const assessment = assessHealthCover(existingCover, familySize, location);
+  
+  // Basic recommendation: ₹5L for individual, ₹10L for family of 4
+  const minRecommended = familySize > 1 ? 1000000 : 500000;
+  const recommendedCover = Math.max(assessment.suggestedCover, minRecommended);
+  
+  const gap = Math.max(0, recommendedCover - existingCover);
+  const topUpSuggestion = gap > 0 ? gap : 0;
+  
+  // Estimated premium for top-up (rough estimate: ₹1000 per 1L cover for family)
+  const estimatedPremium = (topUpSuggestion / 100000) * 1500; 
+
+  return {
+    adequate: existingCover >= recommendedCover,
+    recommendedCover,
+    topUpSuggestion,
+    estimatedPremium,
+    medicalInflation
+  };
 };
 
 /**
@@ -120,44 +201,86 @@ export const calculateNetWorthProjection = (
   totalMonthlySIP: number,
   customParams?: any
 ): any[] => {
-  const currentAge = profile.age;
-  const retirementAge = customParams?.retirementAge || profile.retirement_age;
-  const monthsToRetire = (retirementAge - currentAge) * 12;
-
-  const annualReturn = customParams?.expectedReturn || 0.10;
-  const inflationRate = customParams?.inflationRate || INFLATION_RATE;
+  const currentAge = Number(profile.age) || 30;
+  const retirementAge = Number(customParams?.retirementAge || profile.retirement_age) || 60;
   
-  let currentNetWorth = investments.reduce((sum, inv) => sum + (inv.current_value || 0), 0);
-  currentNetWorth += (profile.current_savings || 0);
+  // Ensure we always have at least 1 month projection
+  const monthsToRetire = Math.max(1, (retirementAge - currentAge) * 12);
 
+  const annualReturn = Number(customParams?.expectedReturn || 0.10);
+  const inflationRate = Number(customParams?.inflationRate || INFLATION_RATE);
+  
+  // Investments total
+  let runningInvestments = (investments || []).reduce((sum, inv) => sum + (Number(inv.current_value) || 0), 0);
+  runningInvestments += (Number(profile.current_savings) || 0);
+
+  // Mortgage details
+  const loanPrincipal = Number(profile.home_loan_outstanding) || 0;
+  const propertyValue = Number(profile.property_value) || 0;
+  const loanRate = Number(profile.home_loan_interest_rate) || 7.5;
+  const loanTenure = Number(profile.home_loan_tenure_remaining) || 0;
+  const loanEmi = Number(profile.home_loan_emi) || 0;
+
+  // Insurance details for sunk costs calculation
+  const healthPremiumMonthly = (Number(profile.health_insurance?.[0]?.annual_premium) || 0) / 12;
+  const lifePremiumMonthly = 0; // Simplified for now since life insurance premium isn't always tracked separately
+
+  const loanAmortization = projectLoanAmortization(loanPrincipal, loanRate, loanTenure, loanEmi);
+  
   const monthlyRate = annualReturn / 12;
   const monthlyInflation = inflationRate / 12;
 
   const projection = [];
-  let runningNetWorth = currentNetWorth;
+  let cumulativeSunkCosts = 0;
+  let hasPaidOffHome = false;
+  let homePayoffAge: number | null = null;
 
   for (let m = 0; m <= monthsToRetire; m++) {
     const age = currentAge + (m / 12);
     const year = new Date().getFullYear() + Math.floor(m / 12);
     
     if (m > 0) {
-      runningNetWorth += totalMonthlySIP;
-      runningNetWorth *= (1 + monthlyRate);
+      runningInvestments += (Number(totalMonthlySIP) || 0);
+      runningInvestments *= (1 + monthlyRate);
     }
 
     // Deduct goal withdrawals (excluding FIRE)
-    const goalsThisYear = goals.filter(g => g.target_year === year && m % 12 === 0 && g.name.toLowerCase() !== 'fire');
-    runningNetWorth -= goalsThisYear.reduce((sum, g) => sum + (g.target_amount || 0), 0);
+    if (m % 12 === 0 && m > 0) {
+      const goalsThisYear = (goals || []).filter(g => Number(g.target_year) === year && g.name?.toLowerCase() !== 'fire');
+      runningInvestments -= goalsThisYear.reduce((sum, g) => sum + (Number(g.target_amount) || 0), 0);
+    }
 
-    const inflationAdjustedNetWorth = runningNetWorth / Math.pow(1 + monthlyInflation, m);
+    const currentLoanBalance = m < loanAmortization.length ? loanAmortization[m] : 0;
+    
+    if (currentLoanBalance <= 0 && loanPrincipal > 0 && !hasPaidOffHome) {
+      hasPaidOffHome = true;
+      homePayoffAge = Math.floor(age);
+    }
+
+    // Add to sunk costs (money gone forever)
+    if (currentLoanBalance > 0 && m > 0) {
+      cumulativeSunkCosts += loanEmi;
+    }
+    if (m > 0) {
+      cumulativeSunkCosts += healthPremiumMonthly + lifePremiumMonthly;
+    }
+    
+    // Net worth = investments + property - loan
+    const runningNetWorth = runningInvestments + propertyValue - currentLoanBalance;
+    const inflationAdjustedNetWorth = (Number(runningNetWorth) || 0) / Math.pow(1 + monthlyInflation, m);
 
     if (m % 12 === 0 || m === monthsToRetire) {
       projection.push({
         month: `Year ${Math.floor(m/12)}`,
         age: Math.floor(age),
+        wealth: Math.max(0, Math.floor(runningNetWorth)), // Match key name used in Chart
         netWorth: Math.max(0, Math.floor(runningNetWorth)),
+        investmentCorpus: Math.floor(runningInvestments),
+        homeEquity: Math.max(0, propertyValue - currentLoanBalance),
         inflationAdjustedNetWorth: Math.max(0, Math.floor(inflationAdjustedNetWorth)),
-        equityPercentage: Math.max(20, Math.min(80, (retirementAge - Math.floor(age)) * 3))
+        equity: Math.max(20, Math.min(80, (retirementAge - Math.floor(age)) * 3)),
+        sunkCosts: Math.floor(cumulativeSunkCosts),
+        homePayoffAge: homePayoffAge
       });
     }
   }

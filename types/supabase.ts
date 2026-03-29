@@ -114,6 +114,47 @@ export type Database = {
           },
         ]
       }
+      health_insurance: {
+        Row: {
+          annual_premium: number
+          city_tier: string
+          created_at: string | null
+          family_members_covered: number
+          id: string
+          includes_parents: boolean
+          profile_id: string
+          sum_insured: number
+        }
+        Insert: {
+          annual_premium: number
+          city_tier: string
+          created_at?: string | null
+          family_members_covered: number
+          id?: string
+          includes_parents: boolean
+          profile_id: string
+          sum_insured: number
+        }
+        Update: {
+          annual_premium?: number
+          city_tier?: string
+          created_at?: string | null
+          family_members_covered?: number
+          id?: string
+          includes_parents?: boolean
+          profile_id?: string
+          sum_insured?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_insurance_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       investments: {
         Row: {
           asset_class: string
@@ -160,6 +201,13 @@ export type Database = {
           retirement_age: number
           risk_tolerance: string
           tax_regime: string
+          property_value: number | null
+          home_loan_outstanding: number | null
+          home_loan_emi: number | null
+          home_loan_tenure_remaining: number | null
+          home_loan_interest_rate: number | null
+          home_ownership_type: string | null
+          fire_preferences: Json | null
           updated_at: string | null
         }
         Insert: {
@@ -172,6 +220,13 @@ export type Database = {
           retirement_age: number
           risk_tolerance: string
           tax_regime: string
+          property_value?: number | null
+          home_loan_outstanding?: number | null
+          home_loan_emi?: number | null
+          home_loan_tenure_remaining?: number | null
+          home_loan_interest_rate?: number | null
+          home_ownership_type?: string | null
+          fire_preferences?: Json | null
           updated_at?: string | null
         }
         Update: {
@@ -184,6 +239,13 @@ export type Database = {
           retirement_age?: number
           risk_tolerance?: string
           tax_regime?: string
+          property_value?: number | null
+          home_loan_outstanding?: number | null
+          home_loan_emi?: number | null
+          home_loan_tenure_remaining?: number | null
+          home_loan_interest_rate?: number | null
+          home_ownership_type?: string | null
+          fire_preferences?: Json | null
           updated_at?: string | null
         }
         Relationships: []

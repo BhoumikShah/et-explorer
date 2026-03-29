@@ -3,7 +3,7 @@ import { supabase } from './supabase'
 export const getProfile = async (userId: string) => {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*, investments(*), goals(*), insurance(*)')
+    .select('*, investments(*), goals(*), insurance(*), health_insurance(*)')
     .eq('id', userId)
     .single()
   
@@ -20,6 +20,12 @@ export type ProfileFormValues = {
     monthly_investment_budget?: number
     risk_tolerance: 'conservative' | 'moderate' | 'aggressive'
     tax_regime: 'old' | 'new'
+    property_value?: number
+    home_loan_outstanding?: number
+    home_loan_emi?: number
+    home_loan_tenure_remaining?: number
+    home_loan_interest_rate?: number
+    home_ownership_type?: string
   }
   investments: {
     asset_class: string
@@ -34,6 +40,19 @@ export type ProfileFormValues = {
   insurance: {
     life_coverage: number
     health_coverage: number
+  }
+  health_insurance?: {
+    sum_insured: number
+    annual_premium: number
+    family_members_covered: number
+    includes_parents: boolean
+    city_tier: string
+  }
+  fire_preferences?: {
+    swr: number
+    fire_type: string
+    strategy: string
+    glide_path: boolean
   }
 }
 
@@ -51,6 +70,13 @@ export const saveFullProfile = async (userId: string, data: ProfileFormValues) =
       monthly_investment_budget: data.personal.monthly_investment_budget || 0,
       risk_tolerance: data.personal.risk_tolerance,
       tax_regime: data.personal.tax_regime,
+      property_value: data.personal.property_value || 0,
+      home_loan_outstanding: data.personal.home_loan_outstanding || 0,
+      home_loan_emi: data.personal.home_loan_emi || 0,
+      home_loan_tenure_remaining: data.personal.home_loan_tenure_remaining || 0,
+      home_loan_interest_rate: data.personal.home_loan_interest_rate || 0,
+      home_ownership_type: data.personal.home_ownership_type || 'self_occupied',
+      fire_preferences: data.fire_preferences,
       updated_at: new Date().toISOString(),
     })
   
@@ -94,6 +120,22 @@ export const saveFullProfile = async (userId: string, data: ProfileFormValues) =
       health_coverage: data.insurance.health_coverage,
     })
   if (insError) return { error: insError }
+
+  // 5. Save Health Insurance Details
+  await supabase.from('health_insurance').delete().eq('profile_id', userId)
+  if (data.health_insurance) {
+    const { error: healthInsError } = await supabase
+      .from('health_insurance')
+      .insert({
+        profile_id: userId,
+        sum_insured: data.health_insurance.sum_insured,
+        annual_premium: data.health_insurance.annual_premium,
+        family_members_covered: data.health_insurance.family_members_covered,
+        includes_parents: data.health_insurance.includes_parents,
+        city_tier: data.health_insurance.city_tier,
+      })
+    if (healthInsError) return { error: healthInsError }
+  }
 
   return { error: null }
 }
